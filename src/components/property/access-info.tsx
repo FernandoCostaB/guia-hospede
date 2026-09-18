@@ -24,7 +24,7 @@ export function AccessInfo({ property }: { property: Property }) {
               </span>
             )}
           </div>
-          <p className="text-sm">Utilize o código abaixo na fechadura eletrônica</p>
+          <p className="text-sm">{property.accessInstructions}</p>
           <span className="inline-block mt-2 font-mono font-medium text-lg">
             {property.accessPassword}
           </span>

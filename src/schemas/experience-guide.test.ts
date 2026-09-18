@@ -82,13 +82,13 @@ describe('experienceGuideSchema', () => {
   })
 
   it('rejects missing welcomeMessage', () => {
-    const { welcomeMessage: _, ...noWelcome } = validGuide
+    const { welcomeMessage: _wm, ...noWelcome } = validGuide
     const result = experienceGuideSchema.safeParse(noWelcome)
     expect(result.success).toBe(false)
   })
 
   it('rejects missing seasonalTip', () => {
-    const { seasonalTip: _, ...noTip } = validGuide
+    const { seasonalTip: _st, ...noTip } = validGuide
     const result = experienceGuideSchema.safeParse(noTip)
     expect(result.success).toBe(false)
   })

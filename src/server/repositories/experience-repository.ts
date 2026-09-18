@@ -5,11 +5,26 @@ export async function findGuideByPropertyId(propertyId: number) {
   return prisma.experienceGuide.findUnique({ where: { propertyId } })
 }
 
-export async function createGuideGenerating(propertyId: number) {
-  return prisma.experienceGuide.upsert({
+export async function tryAcquireGenerating(propertyId: number): Promise<boolean> {
+  try {
+    await prisma.experienceGuide.create({
+      data: { propertyId, status: 'GENERATING' },
+    })
+    return true
+  } catch (error: unknown) {
+    const prismaError = error as { code?: string }
+    if (prismaError.code === 'P2002') {
+      // unique constraint — another request already claimed it
+      return false
+    }
+    throw error
+  }
+}
+
+export async function resetToGenerating(propertyId: number) {
+  return prisma.experienceGuide.update({
     where: { propertyId },
-    update: { status: 'GENERATING', errorMessage: null },
-    create: { propertyId, status: 'GENERATING' },
+    data: { status: 'GENERATING', errorMessage: null },
   })
 }
 

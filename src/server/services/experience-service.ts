@@ -4,7 +4,8 @@ import { experienceGuideSchema } from '@/schemas/experience-guide'
 import { buildExperiencePrompt } from '@/server/ai/prompts'
 import {
   findGuideByPropertyId,
-  createGuideGenerating,
+  tryAcquireGenerating,
+  resetToGenerating,
   markGuideCompleted,
   markGuideFailed,
 } from '@/server/repositories/experience-repository'
@@ -24,7 +25,14 @@ export async function getOrGenerateGuide(property: Property) {
     return { status: 'GENERATING' as const, content: null }
   }
 
-  await createGuideGenerating(property.id)
+  if (existing?.status === 'FAILED') {
+    await resetToGenerating(property.id)
+  } else {
+    const acquired = await tryAcquireGenerating(property.id)
+    if (!acquired) {
+      return { status: 'GENERATING' as const, content: null }
+    }
+  }
 
   try {
     const { object } = await generateObject({

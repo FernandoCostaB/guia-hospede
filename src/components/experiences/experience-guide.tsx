@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { Section } from '@/components/ui/section'
 import type { ExperienceGuideContent, Place, EssentialPlace } from '@/types/property'
 
@@ -59,29 +59,35 @@ export function ExperienceGuideSection({
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>(
     'loading'
   )
-
-  const fetchGuide = useCallback(async () => {
-    setStatus('loading')
-    try {
-      const res = await fetch(`/api/experiences?code=${propertyCode}`)
-      const data = await res.json()
-
-      if (data.status === 'COMPLETED' && data.content) {
-        setGuide(data.content)
-        setStatus('ready')
-      } else if (data.status === 'GENERATING') {
-        setTimeout(fetchGuide, 3000)
-      } else {
-        setStatus('error')
-      }
-    } catch {
-      setStatus('error')
-    }
-  }, [propertyCode])
+  const [retryCount, setRetryCount] = useState(0)
 
   useEffect(() => {
+    let cancelled = false
+
+    async function fetchGuide() {
+      setStatus('loading')
+      try {
+        const res = await fetch(`/api/experiences?code=${propertyCode}`)
+        const data = await res.json()
+
+        if (cancelled) return
+
+        if (data.status === 'COMPLETED' && data.content) {
+          setGuide(data.content)
+          setStatus('ready')
+        } else if (data.status === 'GENERATING') {
+          setTimeout(fetchGuide, 3000)
+        } else {
+          setStatus('error')
+        }
+      } catch {
+        if (!cancelled) setStatus('error')
+      }
+    }
+
     fetchGuide()
-  }, [fetchGuide])
+    return () => { cancelled = true }
+  }, [propertyCode, retryCount])
 
   if (status === 'loading') {
     return (
@@ -101,7 +107,7 @@ export function ExperienceGuideSection({
           Não foi possível gerar o guia de experiências.
         </p>
         <button
-          onClick={fetchGuide}
+          onClick={() => setRetryCount((c) => c + 1)}
           className="px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors cursor-pointer"
         >
           Tentar novamente
