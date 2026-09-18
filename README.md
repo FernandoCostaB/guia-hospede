@@ -1,5 +1,7 @@
 # Guia Digital do Hóspede — Seazone
 
+> **Demo:** [guia-hospede-jet.vercel.app](https://guia-hospede-jet.vercel.app/)
+
 Aplicação web que oferece um guia digital personalizado para hóspedes de imóveis de temporada. Cada imóvel possui uma URL única (ex.: `/FLN001`) com informações completas, guia de experiências gerado por IA e assistente virtual com streaming.
 
 ## Stack
