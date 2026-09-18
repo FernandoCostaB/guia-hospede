@@ -72,7 +72,7 @@ prisma/
 
 ### Pré-requisitos
 - Node.js 18+
-- PostgreSQL (ou conta Neon/Supabase)
+- Docker e Docker Compose
 
 ### Instalação
 
@@ -82,6 +82,14 @@ cd guia-hospede
 npm install
 ```
 
+### Banco de dados
+
+Suba o PostgreSQL local com o `docker-compose.yml` incluso no projeto:
+
+```bash
+docker compose up -d
+```
+
 ### Variáveis de ambiente
 
 ```bash
@@ -89,11 +97,11 @@ cp .env.example .env
 ```
 
 Preencha no `.env`:
-- `DATABASE_URL` — connection string PostgreSQL (pooled, para Prisma)
-- `DIRECT_URL` — connection string direta (para migrations)
+- `DATABASE_URL` — connection string PostgreSQL (o docker-compose sobe na porta padrão)
+- `DIRECT_URL` — mesma connection string (apenas necessário em produção com pooler)
 - `ANTHROPIC_API_KEY` — chave da API Anthropic
 
-### Banco de dados
+### Migrations e seed
 
 ```bash
 npm run db:migrate    # Cria as tabelas
